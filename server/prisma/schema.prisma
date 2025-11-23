@@ -6,13 +6,13 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Visit {
   id       Int       @id @default(autoincrement())
-  name     String
+  name     String    @db.Text
   time_in  DateTime  @default(now())
   time_out DateTime?
   status   String    @default("in") // "in" or "out"
