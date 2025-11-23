@@ -1,7 +1,27 @@
 /// <reference types="vite/client" />
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// Determine API URL based on environment
+const getApiUrl = () => {
+  // Check if we have the env variable (set during build)
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // Check if we're in production (hosted on Railway)
+  const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+  if (hostname.includes('railway.app') || hostname.includes('up.railway.app')) {
+    return 'https://attendo-production-e807.up.railway.app';
+  }
+  
+  // Default to localhost for development
+  return 'http://localhost:3001';
+};
+
+const API_BASE_URL = getApiUrl();
+
+// Log for debugging (remove in production if needed)
+console.log('API Base URL:', API_BASE_URL);
 
 const api = axios.create({
   baseURL: API_BASE_URL,
