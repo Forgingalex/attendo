@@ -1,9 +1,6 @@
-FROM node:20-alpine AS builder
+FROM node:20-slim AS builder
 
 WORKDIR /app
-
-# Install OpenSSL for Prisma
-RUN apk add --no-cache openssl1.1-compat libc6-compat
 
 # Copy package files
 COPY server/package*.json ./
@@ -22,12 +19,9 @@ COPY server/ .
 RUN npm run build
 
 # Production stage
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
-
-# Install OpenSSL for Prisma
-RUN apk add --no-cache openssl1.1-compat libc6-compat
 
 # Copy package files
 COPY server/package*.json ./
