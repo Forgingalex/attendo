@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import DigitalClock from '../components/DigitalClock';
 
 const Success = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const [checkmarkVisible, setCheckmarkVisible] = useState(false);
-  const message = location.state?.message || 'Operation completed successfully!';
   const type = location.state?.type || 'success';
   const name = location.state?.name || '';
   const time = location.state?.time || '';
