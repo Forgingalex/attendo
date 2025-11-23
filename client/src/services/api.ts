@@ -8,24 +8,24 @@ const getApiUrl = () => {
     return import.meta.env.VITE_API_URL;
   }
   
-  // Priority 2: Runtime detection - check if we're on Railway
+  // Priority 2: Runtime detection - check current location
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
     const protocol = window.location.protocol;
     
-    // If we're on HTTPS and not localhost, use Railway backend
-    if (protocol === 'https:' && hostname !== 'localhost' && hostname !== '127.0.0.1') {
-      return 'https://attendo-production-e807.up.railway.app';
-    }
-    
-    // Explicit Railway domain check
-    if (hostname.includes('railway.app')) {
+    // If we're NOT on localhost, we're in production - use Railway backend
+    if (hostname !== 'localhost' && hostname !== '127.0.0.1' && hostname !== '0.0.0.0') {
       return 'https://attendo-production-e807.up.railway.app';
     }
   }
   
-  // Priority 3: Check Vite production mode
+  // Priority 3: Check Vite production mode (always true in built app)
   if (import.meta.env.PROD) {
+    return 'https://attendo-production-e807.up.railway.app';
+  }
+  
+  // Priority 4: Check if not in dev mode
+  if (import.meta.env.MODE !== 'development') {
     return 'https://attendo-production-e807.up.railway.app';
   }
   
@@ -36,9 +36,14 @@ const getApiUrl = () => {
 const API_BASE_URL = getApiUrl();
 
 // Log for debugging
+console.log('=== API Configuration ===');
 console.log('API Base URL:', API_BASE_URL);
+console.log('VITE_API_URL:', import.meta.env.VITE_API_URL);
+console.log('PROD:', import.meta.env.PROD);
+console.log('MODE:', import.meta.env.MODE);
 console.log('Hostname:', typeof window !== 'undefined' ? window.location.hostname : 'N/A');
 console.log('Protocol:', typeof window !== 'undefined' ? window.location.protocol : 'N/A');
+console.log('========================');
 
 const api = axios.create({
   baseURL: API_BASE_URL,
