@@ -2,6 +2,7 @@
 import axios from 'axios';
 
 // Determine API URL based on environment
+// This function is called at module load time, so we need to check runtime values
 const getApiUrl = () => {
   // Priority 1: Use environment variable if set (from Railway env vars)
   if (import.meta.env.VITE_API_URL) {
@@ -9,17 +10,23 @@ const getApiUrl = () => {
   }
   
   // Priority 2: Runtime detection - check current location
-  // If we're NOT on localhost, we're in production - use Railway backend
+  // This is the most reliable check since it runs in the browser
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
+    const protocol = window.location.protocol;
     
-    // If we're NOT on localhost, we're in production
-    if (hostname !== 'localhost' && hostname !== '127.0.0.1' && hostname !== '0.0.0.0') {
+    // If we're on HTTPS or NOT on localhost, we're in production
+    if (protocol === 'https:' || (hostname !== 'localhost' && hostname !== '127.0.0.1' && hostname !== '0.0.0.0')) {
       return 'https://attendo-production-e807.up.railway.app';
     }
   }
   
-  // Priority 3: Check Vite production mode (always true in built app)
+  // Priority 3: Check Vite mode - if not development, use production URL
+  if (import.meta.env.MODE !== 'development') {
+    return 'https://attendo-production-e807.up.railway.app';
+  }
+  
+  // Priority 4: Check Vite production flag
   if (import.meta.env.PROD) {
     return 'https://attendo-production-e807.up.railway.app';
   }
@@ -28,7 +35,17 @@ const getApiUrl = () => {
   return 'http://localhost:3001';
 };
 
-const API_BASE_URL = getApiUrl();
+// Use a function that gets called when API is actually used, not at module load
+let API_BASE_URL_CACHE: string | null = null;
+
+const getApiBaseUrl = () => {
+  if (API_BASE_URL_CACHE === null) {
+    API_BASE_URL_CACHE = getApiUrl();
+  }
+  return API_BASE_URL_CACHE;
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 // Log for debugging
 console.log('=== API Configuration ===');
