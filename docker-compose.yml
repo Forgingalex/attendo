@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: attendo-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-attendo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-attendo123}
+      POSTGRES_DB: ${POSTGRES_DB:-attendo}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-attendo}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - attendo-network
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: attendo-server
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-attendo}:${POSTGRES_PASSWORD:-attendo123}@postgres:5432/${POSTGRES_DB:-attendo}
+      PORT: 3001
+      NODE_ENV: ${NODE_ENV:-production}
+    ports:
+      - "${SERVER_PORT:-3001}:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: sh -c "npx prisma migrate deploy && npm start"
+    networks:
+      - attendo-network
+    restart: unless-stopped
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: attendo-client
+    ports:
+      - "${CLIENT_PORT:-3000}:80"
+    depends_on:
+      - server
+    networks:
+      - attendo-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  attendo-network:
+    driver: bridge
+
+
