@@ -1,10 +1,12 @@
 -- CreateTable
 CREATE TABLE "visits" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "time_in" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "time_out" DATETIME,
-    "status" TEXT NOT NULL DEFAULT 'in'
+    "time_in" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "time_out" TIMESTAMP(3),
+    "status" TEXT NOT NULL DEFAULT 'in',
+
+    CONSTRAINT "visits_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
