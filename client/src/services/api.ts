@@ -3,17 +3,17 @@ import axios from 'axios';
 
 // Determine API URL based on environment
 const getApiUrl = () => {
-  // Priority 1: Use environment variable if set
+  // Priority 1: Use environment variable if set (from Railway env vars)
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
   
   // Priority 2: Runtime detection - check current location
+  // If we're NOT on localhost, we're in production - use Railway backend
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
-    const protocol = window.location.protocol;
     
-    // If we're NOT on localhost, we're in production - use Railway backend
+    // If we're NOT on localhost, we're in production
     if (hostname !== 'localhost' && hostname !== '127.0.0.1' && hostname !== '0.0.0.0') {
       return 'https://attendo-production-e807.up.railway.app';
     }
@@ -21,11 +21,6 @@ const getApiUrl = () => {
   
   // Priority 3: Check Vite production mode (always true in built app)
   if (import.meta.env.PROD) {
-    return 'https://attendo-production-e807.up.railway.app';
-  }
-  
-  // Priority 4: Check if not in dev mode
-  if (import.meta.env.MODE !== 'development') {
     return 'https://attendo-production-e807.up.railway.app';
   }
   
