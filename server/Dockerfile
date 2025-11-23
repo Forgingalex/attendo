@@ -42,14 +42,14 @@ RUN npx prisma generate
 # Copy built files from builder
 COPY --from=builder /app/dist ./dist
 
-# Copy startup script
+# Copy startup script (optional, Railway startCommand takes precedence)
 COPY server/start.sh ./start.sh
 RUN chmod +x ./start.sh
 
 # Expose port
 EXPOSE 3001
 
-# Start server
-CMD ["./start.sh"]
+# Start server (Railway startCommand will override this)
+CMD ["npm", "run", "start:prod"]
 
 
