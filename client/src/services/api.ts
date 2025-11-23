@@ -2,50 +2,46 @@
 import axios from 'axios';
 
 // Determine API URL based on environment
-// This function is called at module load time, so we need to check runtime values
-const getApiUrl = () => {
+// Hardcode production URL for Railway deployments
+const getApiUrl = (): string => {
   // Priority 1: Use environment variable if set (from Railway env vars)
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
   
-  // Priority 2: Runtime detection - check current location
-  // This is the most reliable check since it runs in the browser
+  // Priority 2: Runtime detection - check current location (most reliable)
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
     const protocol = window.location.protocol;
     
-    // If we're on HTTPS or NOT on localhost, we're in production
-    if (protocol === 'https:' || (hostname !== 'localhost' && hostname !== '127.0.0.1' && hostname !== '0.0.0.0')) {
+    // If we're on HTTPS (Railway uses HTTPS), use production backend
+    if (protocol === 'https:') {
+      return 'https://attendo-production-e807.up.railway.app';
+    }
+    
+    // If we're NOT on localhost, we're in production
+    if (hostname !== 'localhost' && hostname !== '127.0.0.1' && hostname !== '0.0.0.0') {
       return 'https://attendo-production-e807.up.railway.app';
     }
   }
   
   // Priority 3: Check Vite mode - if not development, use production URL
-  if (import.meta.env.MODE !== 'development') {
+  // In production builds, MODE is 'production', not 'development'
+  const mode = import.meta.env.MODE;
+  if (mode && mode !== 'development') {
     return 'https://attendo-production-e807.up.railway.app';
   }
   
   // Priority 4: Check Vite production flag
-  if (import.meta.env.PROD) {
+  if (import.meta.env.PROD === true) {
     return 'https://attendo-production-e807.up.railway.app';
   }
   
-  // Default: localhost for development
+  // Default: localhost for development (only when running npm run dev)
   return 'http://localhost:3001';
 };
 
-// Use a function that gets called when API is actually used, not at module load
-let API_BASE_URL_CACHE: string | null = null;
-
-const getApiBaseUrl = () => {
-  if (API_BASE_URL_CACHE === null) {
-    API_BASE_URL_CACHE = getApiUrl();
-  }
-  return API_BASE_URL_CACHE;
-};
-
-const API_BASE_URL = getApiBaseUrl();
+const API_BASE_URL = getApiUrl();
 
 // Log for debugging
 console.log('=== API Configuration ===');
