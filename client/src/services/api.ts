@@ -3,56 +3,42 @@ import axios from 'axios';
 
 // Determine API URL based on environment
 const getApiUrl = () => {
-  // Check if we have the env variable (set during build)
+  // Priority 1: Use environment variable if set
   if (import.meta.env.VITE_API_URL) {
-    console.log('Using VITE_API_URL:', import.meta.env.VITE_API_URL);
     return import.meta.env.VITE_API_URL;
   }
   
-  // Check if we're in production mode (Vite built-in)
-  if (import.meta.env.PROD) {
-    console.log('Production mode detected, using Railway backend');
-    return 'https://attendo-production-e807.up.railway.app';
-  }
-  
-  // Check if we're hosted on Railway (by hostname)
+  // Priority 2: Runtime detection - check if we're on Railway
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
     const protocol = window.location.protocol;
     
-    console.log('Hostname:', hostname, 'Protocol:', protocol);
-    
-    // If not localhost and not 127.0.0.1, assume production
-    if (hostname !== 'localhost' && hostname !== '127.0.0.1' && protocol === 'https:') {
-      console.log('Non-localhost HTTPS detected, using Railway backend');
+    // If we're on HTTPS and not localhost, use Railway backend
+    if (protocol === 'https:' && hostname !== 'localhost' && hostname !== '127.0.0.1') {
       return 'https://attendo-production-e807.up.railway.app';
     }
     
     // Explicit Railway domain check
-    if (hostname.includes('railway.app') || hostname.includes('up.railway.app')) {
-      console.log('Railway domain detected, using Railway backend');
+    if (hostname.includes('railway.app')) {
       return 'https://attendo-production-e807.up.railway.app';
     }
   }
   
-  // Default to localhost for development
-  console.log('Development mode, using localhost');
+  // Priority 3: Check Vite production mode
+  if (import.meta.env.PROD) {
+    return 'https://attendo-production-e807.up.railway.app';
+  }
+  
+  // Default: localhost for development
   return 'http://localhost:3001';
 };
 
 const API_BASE_URL = getApiUrl();
 
 // Log for debugging
-console.log('=== API Configuration ===');
 console.log('API Base URL:', API_BASE_URL);
-console.log('VITE_API_URL:', import.meta.env.VITE_API_URL);
-console.log('PROD mode:', import.meta.env.PROD);
-console.log('MODE:', import.meta.env.MODE);
-if (typeof window !== 'undefined') {
-  console.log('Current URL:', window.location.href);
-  console.log('Hostname:', window.location.hostname);
-}
-console.log('========================');
+console.log('Hostname:', typeof window !== 'undefined' ? window.location.hostname : 'N/A');
+console.log('Protocol:', typeof window !== 'undefined' ? window.location.protocol : 'N/A');
 
 const api = axios.create({
   baseURL: API_BASE_URL,
