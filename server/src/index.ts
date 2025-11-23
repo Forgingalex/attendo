@@ -12,6 +12,12 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Log startup information
+logger.info('Starting server...');
+logger.info(`NODE_ENV: ${process.env.NODE_ENV}`);
+logger.info(`PORT: ${PORT}`);
+logger.info(`DATABASE_URL: ${process.env.DATABASE_URL ? 'Set' : 'Not set'}`);
+
 // Security middleware
 app.use(helmet());
 
