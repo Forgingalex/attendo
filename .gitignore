@@ -34,7 +34,8 @@ build/
 *.sqlite3
 
 # Prisma
-server/prisma/migrations/
+# Migrations should be committed for deployment
+# server/prisma/migrations/
 
 # Logs
 logs/
