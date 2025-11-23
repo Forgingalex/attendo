@@ -332,7 +332,7 @@ ISC
 
 <div align="center">
 
-Made with ❤️ by the Attendo community
+Made with ❤️ from Kodeblock
 
 [Report Bug](https://github.com/Forgingalex/attendo/issues) • [Request Feature](https://github.com/Forgingalex/attendo/issues) • [View Documentation](./CONTRIBUTING.md)
 
